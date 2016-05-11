@@ -2,7 +2,7 @@
 #include <array>
 #include <assert.h>
 #include <list>
-#include "../threadpool/threadpool.h"
+#include <threadpool.h>
 #include <iostream>
 #include "Waiter.h"
 

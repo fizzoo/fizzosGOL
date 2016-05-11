@@ -8,7 +8,7 @@ else
 LDFLAGS=-lSDL2 -lSDL2main -lGLEW32 -lOpenGL32 -lGLU32
 endif
 
-SRC=gol.cc Waiter.cc ../threadpool/threadpool.cc
+SRC=gol.cc Waiter.cc
 
 default: gol
 
