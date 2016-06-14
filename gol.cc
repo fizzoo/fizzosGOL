@@ -8,7 +8,6 @@
 #include <iostream>
 #include <list>
 
-// Multiplar av 4, because fu
 int SIZEX = 1920;
 int SIZEY = 1080;
 
