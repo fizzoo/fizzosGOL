@@ -8,3 +8,4 @@ Requires [threadpool](https://github.com/fizzoo/ThreadPool) (tiny).
   * Comments
   * Accept resizing
   * Don't break on width%4 != 0
+  * Draw thread starts choking on too high FPS
