@@ -6,3 +6,5 @@ Requires [threadpool](https://github.com/fizzoo/ThreadPool) (tiny).
 ## todo:
   * Code structure
   * Comments
+  * Accept resizing
+  * Don't break on width%4 != 0
