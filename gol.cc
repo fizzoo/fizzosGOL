@@ -9,8 +9,8 @@
 #include "GLstate.h"
 
 // Multiplar av 4, because fu
-int SIZEX = 1000;
-int SIZEY = 600;
+int SIZEX = 1920;
+int SIZEY = 1080;
 
 static unsigned int FPSMAX = 60;
 static const int NRTHREADS = 64;
