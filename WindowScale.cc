@@ -1,6 +1,7 @@
 #include "WindowScale.h"
 
-void WindowScale::center_xy_on_xy(DoubleXY const &before, DoubleXY const &after) {
+void WindowScale::center_xy_on_xy(DoubleXY const &before,
+                                  DoubleXY const &after) {
   double diff_x = before.x - after.x;
   double diff_y = before.y - after.y;
 

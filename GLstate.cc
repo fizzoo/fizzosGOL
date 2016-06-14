@@ -58,7 +58,7 @@ void GLstate::draw(unsigned char *data, int sizex, int sizey) {
   glClear(GL_COLOR_BUFFER_BIT);
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sizex, sizey, 0, GL_RED,
-      GL_UNSIGNED_BYTE, data);
+               GL_UNSIGNED_BYTE, data);
 
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   SDL_GL_SwapWindow(window);
@@ -67,12 +67,12 @@ void GLstate::draw(unsigned char *data, int sizex, int sizey) {
 void GLstate::sdlglewinit() {
   // SDL
   SDL_Init(SDL_INIT_VIDEO);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-      SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-  window = SDL_CreateWindow("fizzos Game of Life", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480,
-      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+  window = SDL_CreateWindow("fizzos Game of Life", SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOWPOS_UNDEFINED, 640, 480,
+                            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
   context = SDL_GL_CreateContext(window);
 
   // GLEW
@@ -99,7 +99,7 @@ void GLstate::vabetexinit() {
   GLuint elements[] = {0, 1, 2, 2, 3, 0};
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements,
-      GL_STATIC_DRAW);
+               GL_STATIC_DRAW);
 
   // tex
   GLuint tex;
@@ -151,13 +151,12 @@ void GLstate::shadersinit() {
   // data layout
   GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
   glEnableVertexAttribArray(posAttrib);
-  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-      0);
+  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
   GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
   glEnableVertexAttribArray(texAttrib);
   glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-      (void *)(2 * sizeof(float)));
+                        (void *)(2 * sizeof(float)));
 }
 
 GLstate::GLstate() {

@@ -1,6 +1,4 @@
-CXXFLAGS= -Wall -Wextra -pedantic -std=c++14
-OPT=-march=native -O3 -DNDEBUG
-DEFS=
+CXXFLAGS= -std=c++14 -march=native -O3 -DNDEBUG
 
 ifeq ($(shell uname), Linux)
 LDFLAGS=-pthread -lSDL2 -lGLEW -lGL -lGLU
@@ -8,15 +6,18 @@ else
 LDFLAGS=-lSDL2 -lSDL2main -lGLEW32 -lOpenGL32 -lGLU32
 endif
 
-SRC=gol.cc Waiter.cc GLstate.cc WindowScale.cc
+SRCS=gol.cc Waiter.cc GLstate.cc WindowScale.cc Board.cc
+OBJS=$(subst .cc,.o,$(SRCS))
 
-default: gol
+gol: $(OBJS)
+	g++ -o gol $(OBJS) $(CXXFLAGS) $(LDFLAGS)
 
-opt: $(SRC)
-	g++ $(OPT) -o gol $^ $(CXXFLAGS) $(LDFLAGS) $(DEFS)
+debug: CXXFLAGS += -Wall -Wextra -pedantic -Og -g -DDEBUG
+debug: clean gol
 
-gol: $(SRC)
-	g++ -Og -g -o gol $^ $(CXXFLAGS) $(LDFLAGS) $(DEFS)
+Board.o: Board.cc DoubleXY.h WindowScale.h
+GLstate.o: GLstate.cc WindowScale.h
+WindowScale.o: WindowScale.cc DoubleXY.h
 
 clean:
-	rm -f gol.exe gol
+	rm -f gol.exe gol *.o

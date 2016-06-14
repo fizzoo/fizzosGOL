@@ -13,7 +13,7 @@ struct DoubleXY {
   DoubleXY(double x, double y) : x(x), y(y){};
   DoubleXY(int x, int y) = delete;
 
-  DoubleXY(int x_i, int y_i, int maxx, int maxy) : x(x_i), y(y_i){
+  DoubleXY(int x_i, int y_i, int maxx, int maxy) : x(x_i), y(y_i) {
     x = (x / maxx) * 2.0 - 1.0;
     y = maxy - y; // down is positive in intcoord, negative in floatcoord
     y = (y / maxy) * 2.0 - 1.0;

@@ -14,6 +14,6 @@ void Waiter::wait_if_fast() {
   }
 }
 
-void Waiter::set_ms_tick_length(unsigned int ms_per_tick){
+void Waiter::set_ms_tick_length(unsigned int ms_per_tick) {
   tick_length = std::chrono::milliseconds(ms_per_tick);
 }
