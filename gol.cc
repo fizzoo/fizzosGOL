@@ -2,11 +2,8 @@
 #include "DoubleXY.h"
 #include "GLstate.h"
 #include "Waiter.h"
-#include <array>
-#include <assert.h>
 #include <fstream>
 #include <iostream>
-#include <list>
 
 int SIZEX = 1920;
 int SIZEY = 1080;
@@ -57,7 +54,7 @@ int main(int argc, const char *argv[]) {
     if (argc == 3) {
       SIZEX = atoi(argv[1]);
       SIZEY = atoi(argv[2]);
-      if (!SIZEX || !SIZEY) {
+      if (SIZEX <= 0 || SIZEY <= 0) {
         std::cout << "Incorrect input parameters, atoi didn't work on: '"
                   << argv[1] << "', '" << argv[2] << "'" << std::endl;
         return 1;
