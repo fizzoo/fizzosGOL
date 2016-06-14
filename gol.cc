@@ -16,8 +16,6 @@ static unsigned int FPSMAX = 60;
 
 static std::mutex fliplock;
 
-Board global_b(SIZEX, SIZEY);
-
 std::vector<DoubleXY> line(int x0, int y0, int x1, int y1, int winsizex,
                            int winsizey) {
   // Convert from window-pixels to grid
@@ -68,16 +66,17 @@ int main(int argc, const char *argv[]) {
     }
   }
 
+  Board board(SIZEX, SIZEY);
   GLstate state;
 
   bool active = 1;
   bool running = 1;
-  std::thread boardthread([&active, &running]() {
+  std::thread boardthread([&board, &active, &running]() {
     Waiter runwaiter(1000 / FPSMAX);
     while (running) {
       if (active) {
         std::unique_lock<std::mutex> f(fliplock);
-        global_b.run();
+        board.run();
       }
       runwaiter.set_ms_tick_length(1000 / FPSMAX);
       runwaiter.wait_if_fast();
@@ -123,12 +122,12 @@ int main(int argc, const char *argv[]) {
             }
             break;
           case SDLK_d:
-            for (auto &i : global_b.aliveactive) {
+            for (auto &i : board.aliveactive) {
               i = 0;
             }
             break;
           case SDLK_r:
-            global_b.loaddefaults();
+            board.loaddefaults();
             break;
           case SDLK_f: {
             std::ofstream logfile;
@@ -139,20 +138,20 @@ int main(int argc, const char *argv[]) {
             }
             for (int y = 0; y < SIZEY; y++) {
               for (int x = 0; x < SIZEX; x++) {
-                logfile << (global_b.aliveactive[y * SIZEX + x] == 255 ? 'O'
+                logfile << (board.aliveactive[y * SIZEX + x] == 255 ? 'O'
                                                                        : ' ');
               }
               logfile << std::endl;
             }
           } break;
           case SDLK_s:
-            global_b.save();
+            board.save();
             break;
           case SDLK_l:
-            global_b.load();
+            board.load();
             break;
           case SDLK_PERIOD:
-            global_b.run();
+            board.run();
             break;
           }
           break;
@@ -161,12 +160,12 @@ int main(int argc, const char *argv[]) {
           lasty = event.button.y;
           switch (event.button.button) {
           case SDL_BUTTON_LEFT:
-            global_b.letlive_scaled(
+            board.letlive_scaled(
                 DoubleXY(lastx, lasty, windowsizex, windowsizey), state.loc);
             lbdown = 1;
             break;
           case SDL_BUTTON_RIGHT:
-            global_b.letdie_scaled(
+            board.letdie_scaled(
                 DoubleXY(lastx, lasty, windowsizex, windowsizey), state.loc);
             rbdown = 1;
             break;
@@ -193,9 +192,9 @@ int main(int argc, const char *argv[]) {
 
             for (DoubleXY xy : xys) {
               if (lbdown) {
-                global_b.letlive_scaled(std::move(xy), state.loc);
+                board.letlive_scaled(std::move(xy), state.loc);
               } else if (rbdown) {
-                global_b.letdie_scaled(std::move(xy), state.loc);
+                board.letdie_scaled(std::move(xy), state.loc);
               }
             }
           }
@@ -225,7 +224,7 @@ int main(int argc, const char *argv[]) {
     waiter.wait_if_fast();
 
     // draw allways
-    state.draw(global_b.aliveactive.data(), SIZEX, SIZEY);
+    state.draw(board.aliveactive.data(), SIZEX, SIZEY);
   }
 
   return 0;
