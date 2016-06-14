@@ -18,8 +18,16 @@ static std::mutex fliplock;
 
 Board global_b(SIZEX, SIZEY);
 
-std::vector<DoubleXY> line(int x0, int y0, int x1, int y1, int sizex,
-                           int sizey) {
+std::vector<DoubleXY> line(int x0, int y0, int x1, int y1, int winsizex,
+                           int winsizey) {
+  // Convert from window-pixels to grid
+  DoubleXY xy(x0, y0, winsizex, winsizey);
+  x0 = xy.int_x(SIZEX);
+  y0 = xy.int_y(SIZEY);
+  xy = DoubleXY(x1, y1, winsizex, winsizey);
+  x1 = xy.int_x(SIZEX);
+  y1 = xy.int_y(SIZEY);
+
   std::vector<DoubleXY> ret;
 
   int dx = abs(x1 - x0);
@@ -30,7 +38,7 @@ std::vector<DoubleXY> line(int x0, int y0, int x1, int y1, int sizex,
   int err2;
 
   while (true) {
-    ret.emplace_back(x0, y0, sizex, sizey);
+    ret.emplace_back(x0, y0, SIZEX, SIZEY);
     if (x0 == x1 && y0 == y1)
       break;
     err2 = err;
