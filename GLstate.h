@@ -12,24 +12,43 @@
 
 #include "WindowScale.h"
 
-struct GLstate {
+/**
+ * Class relating to everything required to put some graphics on the screen.
+ */
+class GLstate {
+private:
   GLuint vao, vbo, ebo, tex, shaderProgram, fragmentShader, vertexShader;
   SDL_GLContext context;
   SDL_Window *window;
-  WindowScale loc;
   // posx, posy, texx, texy, clockwise starting top-left
   float vertices[16]{-1.0, 1.0,  0.0, 0.0, 1.0,  1.0,  0.0, 0.0,
                      1.0,  -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0};
 
-  void zoomin(double x, double y);
-  void zoomout(double x, double y);
-  void setVertMatrix();
-  void draw(unsigned char *data, int sizex, int sizey);
   void sdlglewinit();
   void vabetexinit();
   void shadersinit();
+  void setVertMatrix();
+
+public:
+  WindowScale loc;
+
+  /**
+   * Constructors initialize a bunch of SDL / GL things, use only one per
+   * program!
+   */
   GLstate();
   ~GLstate();
+
+  /**
+   * Zooms with respect to the window-pixels.
+   */
+  void zoomin(double x, double y);
+  void zoomout(double x, double y);
+
+  /**
+   * Draws the data on the screen.
+   */
+  void draw(unsigned char *data, int sizex, int sizey);
 };
 
 #endif /* end of include guard: GLSTATE_H */
