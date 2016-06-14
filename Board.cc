@@ -102,6 +102,14 @@ void Board::run() {
   swap(aliveactive, alivewait);
 }
 
+unsigned char *Board::data() { return aliveactive.data(); }
+
+void Board::clear() {
+  for (auto &i : aliveactive) {
+    i = 0;
+  }
+}
+
 void Board::letlive_scaled(DoubleXY &&f, WindowScale const &loc) {
   loc.scaled_to_view(&f);
   letlive(f.int_x(sizex), f.int_y(sizey));

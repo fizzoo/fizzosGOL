@@ -129,9 +129,7 @@ int main(int argc, const char *argv[]) {
             }
             break;
           case SDLK_d:
-            for (auto &i : board.aliveactive) {
-              i = 0;
-            }
+            board.clear();
             break;
           case SDLK_r:
             board.loaddefaults();
@@ -145,8 +143,7 @@ int main(int argc, const char *argv[]) {
             }
             for (int y = 0; y < SIZEY; y++) {
               for (int x = 0; x < SIZEX; x++) {
-                logfile << (board.aliveactive[y * SIZEX + x] == 255 ? 'O'
-                                                                    : ' ');
+                logfile << (board.aliveat(x,y) ? 'O' : ' ');
               }
               logfile << std::endl;
             }
@@ -231,7 +228,7 @@ int main(int argc, const char *argv[]) {
     waiter.wait_if_fast();
 
     // draw allways
-    state.draw(board.aliveactive.data(), SIZEX, SIZEY);
+    state.draw(board.data(), SIZEX, SIZEY);
   }
 
   return 0;
