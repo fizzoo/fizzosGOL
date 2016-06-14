@@ -5,6 +5,7 @@
 #include <threadpool.h>
 #include <iostream>
 #include "Waiter.h"
+#include "DoubleXY.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -65,22 +66,6 @@ static const char *SMALLBOOM = "OOO"
                                "O O"
                                "O O";
 
-struct double_xy {
-  double x, y;
-  double_xy(int x_i, int y_i) : x(x_i), y(y_i) {
-    x = (x / SIZEX) * 2.0 - 1.0;
-    y = SIZEY - y; // down is positive in intcoord, negative in floatcoord
-    y = (y / SIZEY) * 2.0 - 1.0;
-    assert(x > -1.01 && x < 1.01);
-    assert(y > -1.01 && y < 1.01);
-  }
-  double_xy(double x, double y) : x(x), y(y){};
-
-  // 0.01 because rounding often made em SLIGHTLY below the real position
-  int int_x() { return (int(SIZEX + SIZEX * x + 0.01)) / 2; }
-  int int_y() { return (int(SIZEY - SIZEY * y + 0.01)) / 2; }
-};
-
 struct WindowScale {
   static const int SCALESIZE = 11;
   double t{1.0};
@@ -91,7 +76,7 @@ struct WindowScale {
                                           8.0, 11.3, 16.0, 22.6, 32.0};
   unsigned scalefactor_i{0};
 
-  void center_xy_on_xy(double_xy const &before, double_xy const &after) {
+  void center_xy_on_xy(DoubleXY const &before, DoubleXY const &after) {
     double diff_x = before.x - after.x;
     double diff_y = before.y - after.y;
 
@@ -103,7 +88,7 @@ struct WindowScale {
     stay_away_from_edges();
   }
 
-  void scaled_to_view(double_xy *f) const {
+  void scaled_to_view(DoubleXY *f) const {
     double dxy = (r - l) / 2.0;
     assert(dxy > 0.0 && dxy < 1.01); // positive because scale
 
@@ -182,12 +167,15 @@ struct WindowScale {
 };
 
 struct Board {
+  int sizex, sizey;
+  Board(int maxx, int maxy) : sizex(maxx), sizey(maxy) {}
+
   std::vector<unsigned char> aliveactive =
-      std::vector<unsigned char>(SIZEX * SIZEY, 0);
+      std::vector<unsigned char>(sizex * sizey, 0);
   std::vector<unsigned char> alivewait =
-      std::vector<unsigned char>(SIZEX * SIZEY, 0);
+      std::vector<unsigned char>(sizex * sizey, 0);
   std::vector<unsigned char> savedstate =
-      std::vector<unsigned char>(SIZEX * SIZEY, 0);
+      std::vector<unsigned char>(sizex * sizey, 0);
 
   ThreadPool pool;
 
@@ -204,13 +192,13 @@ struct Board {
   void load() { aliveactive = savedstate; }
 
   bool safe_access(int x, int y) {
-    return (x >= 0 && y >= 0 && x < SIZEX && y < SIZEY);
+    return (x >= 0 && y >= 0 && x < sizex && y < sizey);
   }
 
-  bool aliveat(int x, int y) { return aliveactive[y * SIZEX + x] == 255; }
+  bool aliveat(int x, int y) { return aliveactive[y * sizex + x] == 255; }
 
   unsigned char action(int x, int y) {
-    if (x <= 0 || y <= 0 || x >= SIZEX - 1 || y >= SIZEY - 1) {
+    if (x <= 0 || y <= 0 || x >= sizex - 1 || y >= sizey - 1) {
       return 0;
     }
 
@@ -230,19 +218,19 @@ struct Board {
       if (around == 3) {
         return 255;
       } else {
-        return aliveactive[y * SIZEX + x] * 0.97;
+        return aliveactive[y * sizex + x] * 0.97;
       }
     }
   }
 
   void run() {
-    int each = SIZEY / NRTHREADS;
+    int each = sizey / NRTHREADS;
     for (int i = 0; i < NRTHREADS; ++i) {
       pool([=]() {
         for (int y = i * each;
-             y < (i + 1) * each || ((i + 1) == NRTHREADS && y < SIZEY); y++) {
-          for (int x = 0; x < SIZEX; x++) {
-            alivewait[y * SIZEX + x] = action(x, y);
+             y < (i + 1) * each || ((i + 1) == NRTHREADS && y < sizey); y++) {
+          for (int x = 0; x < sizex; x++) {
+            alivewait[y * sizex + x] = action(x, y);
           }
         }
       });
@@ -252,25 +240,25 @@ struct Board {
     swap(aliveactive, alivewait);
   }
 
-  void letlive_scaled(double_xy &&f, WindowScale const &loc) {
+  void letlive_scaled(DoubleXY &&f, WindowScale const &loc) {
     loc.scaled_to_view(&f);
-    letlive(f.int_x(), f.int_y());
+    letlive(f.int_x(sizex), f.int_y(sizey));
   }
 
-  void letdie_scaled(double_xy &&f, WindowScale const &loc) {
+  void letdie_scaled(DoubleXY &&f, WindowScale const &loc) {
     loc.scaled_to_view(&f);
-    letdie(f.int_x(), f.int_y());
+    letdie(f.int_x(sizex), f.int_y(sizey));
   }
 
   void letlive(int x, int y) {
     if (safe_access(x, y)) {
-      aliveactive[y * SIZEX + x] = 255;
+      aliveactive[y * sizex + x] = 255;
     }
   }
 
   void letdie(int x, int y) {
     if (safe_access(x, y)) {
-      aliveactive[y * SIZEX + x] = 0;
+      aliveactive[y * sizex + x] = 0;
     }
   }
 
@@ -285,7 +273,7 @@ struct Board {
   }
 };
 
-Board global_b;
+Board global_b(SIZEX, SIZEY);
 
 const char *vertexshader = "#version 150\n"
                            "in vec2 position;\n"
@@ -313,8 +301,8 @@ struct GLstate {
                      1.0,  -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0};
 
   void zoomin(double x, double y) {
-    double_xy before(x, y);
-    double_xy after(x, y);
+    DoubleXY before(x, y);
+    DoubleXY after(x, y);
 
     loc.scaled_to_view(&before);
     ++loc;
@@ -326,8 +314,8 @@ struct GLstate {
   }
 
   void zoomout(double x, double y) {
-    double_xy before(x, y);
-    double_xy after(x, y);
+    DoubleXY before(x, y);
+    DoubleXY after(x, y);
 
     loc.scaled_to_view(&before);
     --loc;
@@ -476,8 +464,8 @@ struct GLstate {
   }
 };
 
-std::vector<double_xy> line(int x0, int y0, int x1, int y1) {
-  std::vector<double_xy> ret;
+std::vector<DoubleXY> line(int x0, int y0, int x1, int y1) {
+  std::vector<DoubleXY> ret;
 
   int dx = abs(x1 - x0);
   int dy = abs(y1 - y0);
@@ -487,7 +475,7 @@ std::vector<double_xy> line(int x0, int y0, int x1, int y1) {
   int err2;
 
   while (true) {
-    ret.emplace_back(x0, y0);
+    ret.emplace_back(x0, y0, SIZEX, SIZEY);
     if (x0 == x1 && y0 == y1)
       break;
     err2 = err;
@@ -610,11 +598,11 @@ int main(int argc, const char *argv[]) {
           lasty = event.button.y;
           switch (event.button.button) {
           case SDL_BUTTON_LEFT:
-            global_b.letlive_scaled(double_xy(lastx, lasty), state.loc);
+            global_b.letlive_scaled(DoubleXY(lastx, lasty, SIZEX, SIZEY), state.loc);
             lbdown = 1;
             break;
           case SDL_BUTTON_RIGHT:
-            global_b.letdie_scaled(double_xy(lastx, lasty), state.loc);
+            global_b.letdie_scaled(DoubleXY(lastx, lasty, SIZEX, SIZEY), state.loc);
             rbdown = 1;
             break;
           }
@@ -637,7 +625,7 @@ int main(int argc, const char *argv[]) {
             lastx = currx;
             lasty = curry;
 
-            for (double_xy xy : xys) {
+            for (DoubleXY xy : xys) {
               if (lbdown) {
                 global_b.letlive_scaled(std::move(xy), state.loc);
               } else if (rbdown) {
@@ -649,7 +637,7 @@ int main(int argc, const char *argv[]) {
         case SDL_MOUSEWHEEL:
           int x, y;
           SDL_GetMouseState(&x, &y);
-          double_xy f(x, y);
+          DoubleXY f(x, y, SIZEX, SIZEY);
 
           if (event.wheel.y > 0) {
             state.zoomin(f.x, f.y);
