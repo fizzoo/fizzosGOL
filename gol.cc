@@ -464,7 +464,7 @@ struct GLstate {
   }
 };
 
-std::vector<DoubleXY> line(int x0, int y0, int x1, int y1) {
+std::vector<DoubleXY> line(int x0, int y0, int x1, int y1, int sizex, int sizey) {
   std::vector<DoubleXY> ret;
 
   int dx = abs(x1 - x0);
@@ -475,7 +475,7 @@ std::vector<DoubleXY> line(int x0, int y0, int x1, int y1) {
   int err2;
 
   while (true) {
-    ret.emplace_back(x0, y0, SIZEX, SIZEY);
+    ret.emplace_back(x0, y0, sizex, sizey);
     if (x0 == x1 && y0 == y1)
       break;
     err2 = err;
@@ -525,6 +525,7 @@ int main(int argc, const char *argv[]) {
   int lastx = 0, lasty = 0;
   bool lbdown = 0;
   bool rbdown = 0;
+  int windowsizex = SIZEX, windowsizey = SIZEY;
   SDL_Event event;
   Waiter waiter(16);
   while (true) {
@@ -600,11 +601,11 @@ int main(int argc, const char *argv[]) {
           lasty = event.button.y;
           switch (event.button.button) {
             case SDL_BUTTON_LEFT:
-              global_b.letlive_scaled(DoubleXY(lastx, lasty, SIZEX, SIZEY), state.loc);
+              global_b.letlive_scaled(DoubleXY(lastx, lasty, windowsizex, windowsizey), state.loc);
               lbdown = 1;
               break;
             case SDL_BUTTON_RIGHT:
-              global_b.letdie_scaled(DoubleXY(lastx, lasty, SIZEX, SIZEY), state.loc);
+              global_b.letdie_scaled(DoubleXY(lastx, lasty, windowsizex, windowsizey), state.loc);
               rbdown = 1;
               break;
           }
@@ -623,7 +624,7 @@ int main(int argc, const char *argv[]) {
           if (lbdown || rbdown) {
             int currx = event.motion.x;
             int curry = event.motion.y;
-            auto xys = line(lastx, lasty, currx, curry);
+            auto xys = line(lastx, lasty, currx, curry, windowsizex, windowsizey);
             lastx = currx;
             lasty = curry;
 
@@ -637,14 +638,22 @@ int main(int argc, const char *argv[]) {
           }
           break;
         case SDL_MOUSEWHEEL:
-          int x, y;
-          SDL_GetMouseState(&x, &y);
-          DoubleXY f(x, y, SIZEX, SIZEY);
+          {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            DoubleXY f(x, y, windowsizex, windowsizey);
 
-          if (event.wheel.y > 0) {
-            state.zoomin(f.x, f.y);
-          } else {
-            state.zoomout(f.x, f.y);
+            if (event.wheel.y > 0) {
+              state.zoomin(f.x, f.y);
+            } else {
+              state.zoomout(f.x, f.y);
+            }
+          }
+          break;
+        case SDL_WINDOWEVENT:
+          if (event.window.event ==  SDL_WINDOWEVENT_RESIZED) {
+            windowsizex = event.window.data1;
+            windowsizey = event.window.data2;
           }
           break;
         }
