@@ -5,4 +5,3 @@ Requires [threadpool](https://github.com/fizzoo/ThreadPool) (tiny).
 
 ## todo:
   * Comments
-  * Draw thread starts choking on too high FPS

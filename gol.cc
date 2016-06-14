@@ -77,6 +77,14 @@ int main(int argc, const char *argv[]) {
         std::unique_lock<std::mutex> f(fliplock);
         board.run();
       }
+
+      // We're clearly not managing to be in sync if we dropped four
+      // runs in a row, so reduce the fpsmax
+      if (runwaiter.slow_runs() > 4) {
+        if (FPSMAX > 10) {
+          FPSMAX = FPSMAX * 9 / 10;
+        }
+      }
       runwaiter.set_ms_tick_length(1000 / FPSMAX);
       runwaiter.wait_if_fast();
     }
@@ -138,7 +146,7 @@ int main(int argc, const char *argv[]) {
             for (int y = 0; y < SIZEY; y++) {
               for (int x = 0; x < SIZEX; x++) {
                 logfile << (board.aliveactive[y * SIZEX + x] == 255 ? 'O'
-                                                                       : ' ');
+                                                                    : ' ');
               }
               logfile << std::endl;
             }
