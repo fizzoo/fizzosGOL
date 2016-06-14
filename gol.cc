@@ -357,6 +357,7 @@ int main(int argc, const char *argv[]) {
           if (event.window.event ==  SDL_WINDOWEVENT_RESIZED) {
             windowsizex = event.window.data1;
             windowsizey = event.window.data2;
+            glViewport(0,0,windowsizex, windowsizey);
           }
           break;
         }
