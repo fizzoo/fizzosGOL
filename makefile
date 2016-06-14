@@ -8,7 +8,7 @@ else
 LDFLAGS=-lSDL2 -lSDL2main -lGLEW32 -lOpenGL32 -lGLU32
 endif
 
-SRC=gol.cc Waiter.cc
+SRC=gol.cc Waiter.cc GLstate.cc WindowScale.cc
 
 default: gol
 

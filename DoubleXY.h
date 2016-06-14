@@ -1,3 +1,6 @@
+#ifndef DOUBLEXY_H
+#define DOUBLEXY_H
+
 #include <cassert>
 
 /**
@@ -23,3 +26,4 @@ struct DoubleXY {
   int int_y(int maxy) { return (int(maxy - maxy * y + 0.01)) / 2; }
 };
 
+#endif /* end of include guard: DOUBLEXY_H */
