@@ -19,5 +19,8 @@ Board.o: Board.cc DoubleXY.h WindowScale.h
 GLstate.o: GLstate.cc WindowScale.h
 WindowScale.o: WindowScale.cc DoubleXY.h
 
+install: gol
+	cp gol /usr/local/bin/
+
 clean:
 	rm -f gol.exe gol *.o
