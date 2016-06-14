@@ -507,12 +507,6 @@ int main(int argc, const char *argv[]) {
 
   GLstate state;
 
-  std::ofstream logfile;
-  logfile.open("log");
-  if (!logfile) {
-    assert(0 && "logfile error");
-    return 0;
-  }
 
   bool active = 1;
   bool running = 1;
@@ -574,12 +568,20 @@ int main(int argc, const char *argv[]) {
             global_b.loaddefaults();
             break;
           case SDLK_f:
-            for (int y = 0; y < SIZEY; y++) {
-              for (int x = 0; x < SIZEX; x++) {
-                logfile << (global_b.aliveactive[y * SIZEX + x] == 255 ? 'O'
-                                                                       : ' ');
+            {
+              std::ofstream logfile;
+              logfile.open("log");
+              if (!logfile) {
+                assert(0 && "logfile error");
+                return 0;
               }
-              logfile << std::endl;
+              for (int y = 0; y < SIZEY; y++) {
+                for (int x = 0; x < SIZEX; x++) {
+                  logfile << (global_b.aliveactive[y * SIZEX + x] == 255 ? 'O'
+                      : ' ');
+                }
+                logfile << std::endl;
+              }
             }
             break;
           case SDLK_s:
@@ -597,24 +599,24 @@ int main(int argc, const char *argv[]) {
           lastx = event.button.x;
           lasty = event.button.y;
           switch (event.button.button) {
-          case SDL_BUTTON_LEFT:
-            global_b.letlive_scaled(DoubleXY(lastx, lasty, SIZEX, SIZEY), state.loc);
-            lbdown = 1;
-            break;
-          case SDL_BUTTON_RIGHT:
-            global_b.letdie_scaled(DoubleXY(lastx, lasty, SIZEX, SIZEY), state.loc);
-            rbdown = 1;
-            break;
+            case SDL_BUTTON_LEFT:
+              global_b.letlive_scaled(DoubleXY(lastx, lasty, SIZEX, SIZEY), state.loc);
+              lbdown = 1;
+              break;
+            case SDL_BUTTON_RIGHT:
+              global_b.letdie_scaled(DoubleXY(lastx, lasty, SIZEX, SIZEY), state.loc);
+              rbdown = 1;
+              break;
           }
           break;
         case SDL_MOUSEBUTTONUP:
           switch (event.button.button) {
-          case SDL_BUTTON_LEFT:
-            lbdown = 0;
-            break;
-          case SDL_BUTTON_RIGHT:
-            rbdown = 0;
-            break;
+            case SDL_BUTTON_LEFT:
+              lbdown = 0;
+              break;
+            case SDL_BUTTON_RIGHT:
+              rbdown = 0;
+              break;
           }
           break;
         case SDL_MOUSEMOTION:
