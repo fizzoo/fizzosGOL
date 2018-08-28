@@ -1,9 +1,9 @@
-CXXFLAGS= -std=c++14 -march=native -O3 -DNDEBUG
+CXXFLAGS= -std=c++14 -march=native -O3 -DNDEBUG -Ithreadpool
 
 ifeq ($(shell uname), Linux)
-LDFLAGS=-pthread -lSDL2 -lGLEW -lGL -lGLU
+	LDFLAGS=-pthread -lSDL2 -lGLEW -lGL -lGLU
 else
-LDFLAGS=-lSDL2 -lSDL2main -lGLEW32 -lOpenGL32 -lGLU32
+	LDFLAGS=-lSDL2 -lSDL2main -lGLEW32 -lOpenGL32 -lGLU32
 endif
 
 SRCS=gol.cc Waiter.cc GLstate.cc WindowScale.cc Board.cc
