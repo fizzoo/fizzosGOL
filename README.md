@@ -1,4 +1,8 @@
 # fizzosGOL
 Minimalistic openGL Game of Life in C++
 
-Requires [threadpool](https://github.com/fizzoo/ThreadPool) (tiny).
+Use `git clone --recursive`.
+
+![Small example](img/exsmall.png)
+![Big paused](img/exbig1.png)
+![Big running](img/exbig2.png)
